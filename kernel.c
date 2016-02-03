@@ -99,8 +99,10 @@ void readString(char* c)
 		index = index +1;
 		}
 	}
-	/* TODO: add 0x0 as last character in the array and return */
-	/* TODO: loop and display after enter key stroke*/
+  c[index+1]=0;
+  /*FIXME: bug where there is a tab when you press enter */
+  printString("\n");
+  printString(c);
   	 return;
 }
 
