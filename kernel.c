@@ -78,37 +78,45 @@ void readString(char* c)
  {
 	int index=0;
   /* Gather input*/
-	/*13 key = ENTER */
 	while(c[index]!=13){
-		/* Gather input*/
+		/*input*/
 		c[index] = interrupt(22,0,0,0,0);
     if (c[index]==13) break;
-
     /*handle backspace */
     if (c[index]==8 && index>=0){
       if (index!=0) {
       index = index-1;
+      /*move cursor back, display space and then move cursor back again */
       interrupt(16,14*256+8,0,0,0);
       interrupt(16,14*256+' ',0,0,0);
       interrupt(16,14*256+8,0,0,0);
       }
     }
-    /*display */
+    /*display what user is typing*/
     else {
 		interrupt(16,14*256+c[index],0,0,0);
 		index = index +1;
 		}
 	}
+  /*when enter is pressed, add 0x0 to end of char array */
   c[index+1]=0;
   /*FIXME: bug where there is a tab when you press enter */
   printString("\n");
   printString(c);
   	 return;
 }
-
+/*TODO: clearScreen is under maintence. -kj */
 void clearScreen(int bx, int cx)
 {
-	/* This too. */
+  int index =0;
+  while (index!=23){
+    interrupt(16,14*256+'\n',0,0,0);
+    interrupt(16,14*256+13,0,0,0);
+  }
+  if (bx>0 && cx>0){
+    interrupt(16,1536,4096*(bx-1)+256*(cx-1),0,6223);
+
+  }
 	return;
 }
 
