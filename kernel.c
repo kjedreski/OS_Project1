@@ -1,4 +1,4 @@
-﻿/* ACADEMIC INTEGRITY PLEDGE                                              */
+/* ACADEMIC INTEGRITY PLEDGE                                              */
 /*                                                                        */
 /* - I have not used source code obtained from another student nor        */
 /*   any other unauthorized source, either modified or unmodified.        */
@@ -39,7 +39,7 @@ void main()
    char line[80];
    int x;
 
-   /*clearScreen(0,0); */
+   clearScreen(2,16);
 
    printString("___.   .__                 __       .___           \r\n\0");
    printString("\\_ |__ |  | _____    ____ |  | __ __| _/___  ______\r\n\0");
@@ -47,7 +47,7 @@ void main()
    printString(" | \\_\\ \\  |__/ /\\ \\\\  \\___|    </ /_/ ( <_> )___ \\ \r\n\0");
    printString(" |___  /____(____  /\\___  >__|_ \\____ |\\___/____  >\r\n\0");
    printString("     \\/          \\/     \\/     \\/    \\/         \\/ \r\n\0");
-   printString(" V. 1.02, C. 2016. Based on a project by M. Black. \r\n\0");
+   printString(" Vll. 1.02, C. 2016. Based on a project by M. Black. \r\n\0");
    printString(" Author(s): Kevin Jedreski\r\n\r\n\0");
    printString("Hola mondo.\r\n\0");
    printString("Enter a line: \0");
@@ -114,11 +114,10 @@ void clearScreen(int bx, int cx)
     interrupt(16,14*256+'\n',0,0,0);
     index =index+1;
   }
-  /*interrupt(16,512,0,0,0); */
-  if (bx>0 && cx>0){
-    if (bx>7 || cx>15) break;
-    else {
-    /*interrupt(16,1536,4096*(bx-1)+256*(cx-1),0,6223);*/ }
+  interrupt(16,512,0,0,0);
+   if (bx>0 && cx>0){
+    if (bx<=8 || cx<=16)
+    interrupt(16,1536,4096*(bx-1)+256*(cx-1),0,6223);
   }
 	return;
 }
@@ -161,6 +160,11 @@ void writeInt(int x)
 
 void readInt(int* number)
 {
+  int index=0;
+  while(number[index]!='\0'){
+    number%
+  }
+
    /* Fill this in as well. */
    return;
 }
