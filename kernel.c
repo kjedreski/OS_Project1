@@ -39,7 +39,7 @@ void main()
    char line[80];
    int x;
 
-   clearScreen(0,0);
+   /*clearScreen(0,0); */
 
    printString("___.   .__                 __       .___           \r\n\0");
    printString("\\_ |__ |  | _____    ____ |  | __ __| _/___  ______\r\n\0");
@@ -110,12 +110,15 @@ void clearScreen(int bx, int cx)
 {
   int index =0;
   while (index!=23){
-    interrupt(16,14*256+'\n',0,0,0);
     interrupt(16,14*256+13,0,0,0);
+    interrupt(16,14*256+'\n',0,0,0);
+    index =index+1;
   }
+  /*interrupt(16,512,0,0,0); */
   if (bx>0 && cx>0){
-    interrupt(16,1536,4096*(bx-1)+256*(cx-1),0,6223);
-
+    if (bx>7 || cx>15) break;
+    else {
+    /*interrupt(16,1536,4096*(bx-1)+256*(cx-1),0,6223);*/ }
   }
 	return;
 }
