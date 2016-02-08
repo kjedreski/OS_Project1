@@ -161,23 +161,22 @@ void writeInt(int x)
 
 void readInt(int* number)
 {
+    int sum=0;
   /*read number as a character string.*/
-  char *input;
+  char input[80];
   /*first handle input for reading integers  */
   int index=0;
-  while (number[index]!=13){
+  while (input[index]!=13){
         /*get initial input */
-        number[index] = interrupt(22,0,0,0,0);
+        input[index] = interrupt(22,0,0,0,0);
         /*display input back to user*/
-        interrupt(16,14*256+c[index],0,0,0);
-
-
+        interrupt(16,14*256+input[index],0,0,0);
   }
 
 
-  int sum=0;
+
   /*conversion from ascii to integers. */
-  while(number[index]!='\0'){
+  while(input[index]!='\0'){
     /*to convert to from ascii to integer, subtract 48 */
     sum = (number[index]-48)+sum;
     index = index+1;
