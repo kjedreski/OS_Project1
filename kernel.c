@@ -33,14 +33,13 @@ void readString(char*);
 void writeInt(int);
 void readInt(int*);
 void clearScreen(int,int);
-
+/*void handleInterrupt21(int,int,int,int);*/
 void main()
 {
    char line[80];
    int x;
 
    clearScreen(2,16);
-
    printString("___.   .__                 __       .___           \r\n\0");
    printString("\\_ |__ |  | _____    ____ |  | __ __| _/___  ______\r\n\0");
    printString(" | __ \\|  | \\__  \\ _/ ___\\|  |/ // __ |/ _ \\/  ___/\r\n\0");
@@ -60,6 +59,20 @@ void main()
    printString("Your number is \0");
    writeInt(x);
    printString("\r\n\0");
+  /* makeInterrupt21();
+   interrupt(33,12,4,5,0);
+   interrupt(33,0,"Hello World\r\n\0",0,0);
+   interrupt(33,0,"\r\n\0",0,0);
+   interrupt(33,0,"Enter a line: \0",0,0);
+   interrupt(33,1,line,0,0);
+   interrupt(33,0,"\r\nYou wrote: \0",0,0);
+   interrupt(33,0,line,0,0);
+   interrupt(33,0,"\r\n\0",0,0);
+   interrupt(33,0,"Enter a number: \0",0,0);
+   interrupt(33,14,&x,0,0);
+   interrupt(33,0,"You entered \0",0,0);
+   interrupt(33,13,x,0,0);
+   interrupt(33,0,"\r\n\0",0,0); */
    while(1);
 }
 
@@ -101,12 +114,11 @@ void readString(char* c)
 	}
   /*when enter is pressed, add 0x0 to end of char array */
   c[index+1]=0;
-  /*FIXME: bug where there is a tab when you press enter */
-  printString("\n");
+  printString("\r\n");
   printString(c);
   	 return;
 }
-/*TODO: clearScreen is under maintence. -kj */
+
 void clearScreen(int bx, int cx)
 {
   int index =0;
@@ -161,7 +173,7 @@ void writeInt(int x)
 
 void readInt(int* number)
 {
-    int sum=0;
+  int sum=0;
   /*read number as a character string.*/
   char input[80];
   /*first handle input for reading integers  */
@@ -173,8 +185,6 @@ void readInt(int* number)
         interrupt(16,14*256+input[index],0,0,0);
   }
 
-
-
   /*conversion from ascii to integers. */
   while(input[index]!='\0'){
     /*to convert to from ascii to integer, subtract 48 */
@@ -183,7 +193,31 @@ void readInt(int* number)
   }
   number = sum;
   /*use 1234%10 to get each digit right to left. */
-
+  printString("\r\n");
    /* Fill this in as well. */
    return;
+}
+
+// interrupt service routine to manage interrupt vector table
+void handleInterrupt21(int ax, int bx, int cx, int dx){
+  if (ax==0){
+    printString(bx);
+  }
+  else if (ax==1){
+    readString(bx);
+  }
+  else if (ax==12){
+    clearScreen(bx,cx);
+  }
+  else if (ax==13){
+    writeInt(bx);
+  }
+  else if (ax==14){
+    readInt(bx);
+  }
+  else {
+    printString("Incorrect service call\0");
+  }
+
+
 }
