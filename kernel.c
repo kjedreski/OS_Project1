@@ -55,9 +55,10 @@ void main()
    printString("\r\nYou typed: \0");
    printString(line);
    printString("\r\n\0");
-   x = 5;
+   printString("Enter a number: \0");
+   readInt(&x);
    printString("Your number is \0");
-    writeInt(x);
+   writeInt(x);
    printString("\r\n\0");
    while(1);
 }
@@ -160,10 +161,29 @@ void writeInt(int x)
 
 void readInt(int* number)
 {
+  /*read number as a character string.*/
+  char *input;
+  /*first handle input for reading integers  */
   int index=0;
-  while(number[index]!='\0'){
-    number%
+  while (number[index]!=13){
+        /*get initial input */
+        number[index] = interrupt(22,0,0,0,0);
+        /*display input back to user*/
+        interrupt(16,14*256+c[index],0,0,0);
+
+
   }
+
+
+  int sum=0;
+  /*conversion from ascii to integers. */
+  while(number[index]!='\0'){
+    /*to convert to from ascii to integer, subtract 48 */
+    sum = (number[index]-48)+sum;
+    index = index+1;
+  }
+  number = sum;
+  /*use 1234%10 to get each digit right to left. */
 
    /* Fill this in as well. */
    return;
