@@ -28,18 +28,18 @@ Kevin Jedreski
 Operating Systems Project 1
 */
 
-void printString(char*);
+/*void printString(char*);
 void readString(char*);
 void writeInt(int);
-void readInt(int*);
-void clearScreen(int,int);
-/*void handleInterrupt21(int,int,int,int);*/
+void ReadInt(int*);
+void clearScreen(int,int);*/
+void handleInterrupt21(int,int,int,int);
 void main()
 {
    char line[80];
    int x;
 
-   clearScreen(2,16);
+  /* clearScreen(2,16);
    printString("___.   .__                 __       .___           \r\n\0");
    printString("\\_ |__ |  | _____    ____ |  | __ __| _/___  ______\r\n\0");
    printString(" | __ \\|  | \\__  \\ _/ ___\\|  |/ // __ |/ _ \\/  ___/\r\n\0");
@@ -55,11 +55,12 @@ void main()
    printString(line);
    printString("\r\n\0");
    printString("Enter a number: \0");
-   readInt(&x);
+   ReadInt(&x);
    printString("Your number is \0");
    writeInt(x);
    printString("\r\n\0");
-  /* makeInterrupt21();
+   printString("test\r\n\0"); */
+   makeInterrupt21();
    interrupt(33,12,4,5,0);
    interrupt(33,0,"Hello World\r\n\0",0,0);
    interrupt(33,0,"\r\n\0",0,0);
@@ -72,7 +73,7 @@ void main()
    interrupt(33,14,&x,0,0);
    interrupt(33,0,"You entered \0",0,0);
    interrupt(33,13,x,0,0);
-   interrupt(33,0,"\r\n\0",0,0); */
+   interrupt(33,0,"\r\n\0",0,0);
    while(1);
 }
 
@@ -113,7 +114,7 @@ void readString(char* c)
 		}
 	}
   /*when enter is pressed, add 0x0 to end of char array */
-  c[index+1]=0;
+  c[index]=0;
   printString("\r\n");
   printString(c);
   	 return;
@@ -151,8 +152,11 @@ int div(int a, int b)
 
 void writeInt(int x)
 {
+
    char number[6], *d;
    int q = x, r;
+   int save;
+
    if (x < 1)
    {
       d = number; *d = 0x30; d++; *d = 0x0; d--;
@@ -161,41 +165,47 @@ void writeInt(int x)
    {
       d = number + 5;
       *d = 0x0; d--;
-      while (q > -1)
+      while (q > 0)
       {
-         r = mod(q,10); q = div(q,10);
-         *d = r + 48; d--;
+         r = mod(q,10);
+
+         q = div(q,10);
+
+         *d = r + 48;
+         d--;
       }
       d++;
    }
+
    printString(d);
 }
 
-void readInt(int* number)
+void ReadInt(int* number)
 {
-  int sum=0;
-  /*read number as a character string.*/
-  char input[80];
-  /*first handle input for reading integers  */
+  int sum =0;
   int index=0;
-  while (input[index]!=13){
-        /*get initial input */
-        input[index] = interrupt(22,0,0,0,0);
-        /*display input back to user*/
-        interrupt(16,14*256+input[index],0,0,0);
-  }
+  char input[20];
+  int temp=10;
+  readString(input);
+  /*printString(input);
+  printString("\r\n\0");
+  printString(input[0]);*/
+   /*multiply by 10 each time */
+  while (input[index]!='\0'){
+    /*writeInt(sum);*/
+  #if 0
 
-  /*conversion from ascii to integers. */
-  while(input[index]!='\0'){
-    /*to convert to from ascii to integer, subtract 48 */
-    sum = (number[index]-48)+sum;
+    interrupt(16, 3584 + input[index],0,0,0);
+    printString("\r\n\0");
+    writeInt(input[index] - 48);
+    printString("\r\n\0");
+  #endif
+    sum = sum * 10 + (input[index]-48);
     index = index+1;
   }
-  number = sum;
-  /*use 1234%10 to get each digit right to left. */
-  printString("\r\n");
-   /* Fill this in as well. */
-   return;
+   /*writeInt(sum);*/
+  *number = sum;
+
 }
 
 // interrupt service routine to manage interrupt vector table
@@ -213,11 +223,29 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
     writeInt(bx);
   }
   else if (ax==14){
-    readInt(bx);
+    ReadInt(bx);
   }
   else {
     printString("Incorrect service call\0");
   }
+  /*read number as a character string.*/
+  /*char input[80]; */
+  /*first handle input for reading integers  */
+  /*int index=0; */
+  /*build character array */
+  /*TODO: Biggest goal, print ascii of a number, converting character to int */
 
+  /*read number in as character string */
+  /*readString(input);*/
+  /*from left to right - convert the ASCII chars for eaach individual digit */
+  /*while(input[index]!='\0'){ */
+    /*to convert to from ascii to integer, subtract 48 */
+    /*TODO: multiply by 10 each iteration once we fix 0 bug */
+    /*sum = (input[index]-48)+sum;
+    index = index+1;*/
+    /*printString("\r\nindex is= \0");
+    writeInt(23); */
+  /*}*/
+  /*STORE sum at the address provided as an argument. */
 
 }
