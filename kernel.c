@@ -19,7 +19,7 @@
 /*                                                                        */
 /*                                                                        */
 /*                                                                        */
-/* Signed:_____________________________________ Date:_____________        */
+/* Signed:Kevin Jedreski Date:  Feb-11-2016 */
 /*                                                                        */
 /*                                                                        */
 /* 3460:4/526 BlackDOS kernel, Version 1.02, Spring 2016.                 */
@@ -38,30 +38,16 @@ void main()
 {
    char line[80];
    int x;
-
-  /* clearScreen(2,16);
-   printString("___.   .__                 __       .___           \r\n\0");
-   printString("\\_ |__ |  | _____    ____ |  | __ __| _/___  ______\r\n\0");
-   printString(" | __ \\|  | \\__  \\ _/ ___\\|  |/ // __ |/ _ \\/  ___/\r\n\0");
-   printString(" | \\_\\ \\  |__/ /\\ \\\\  \\___|    </ /_/ ( <_> )___ \\ \r\n\0");
-   printString(" |___  /____(____  /\\___  >__|_ \\____ |\\___/____  >\r\n\0");
-   printString("     \\/          \\/     \\/     \\/    \\/         \\/ \r\n\0");
-   printString(" Vll. 1.02, C. 2016. Based on a project by M. Black. \r\n\0");
-   printString(" Author(s): Kevin Jedreski\r\n\r\n\0");
-   printString("Hola mondo.\r\n\0");
-   printString("Enter a line: \0");
-   readString(line);
-   printString("\r\nYou typed: \0");
-   printString(line);
-   printString("\r\n\0");
-   printString("Enter a number: \0");
-   ReadInt(&x);
-   printString("Your number is \0");
-   writeInt(x);
-   printString("\r\n\0");
-   printString("test\r\n\0"); */
    makeInterrupt21();
    interrupt(33,12,4,5,0);
+   interrupt(33,0,"___.   .__                 __       .___           \r\n\0",0,0);
+   interrupt(33,0,"\\_ |__ |  | _____    ____ |  | __ __| _/___  ______\r\n\0",0,0);
+   interrupt(33,0," | __ \\|  | \\__  \\ _/ ___\\|  |/ // __ |/ _ \\/  ___\r\n\0",0,0);
+   interrupt(33,0," | \\_\\ \\  |__/ /\\ \\\\  \\___|    </ /_/ ( <_> )___ \\ \r\n\0",0,0);
+   interrupt(33,0," |___  /____(____  /\\___  >__|_ \\____ |\\___/____  >\r\n\0",0,0);
+   interrupt(33,0,"     \\/          \\/     \\/     \\/    \\/         \\/ \r\n\0",0,0);
+   interrupt(33,0," V. 1.02, C. 2016. Based on a project by M. Black. \r\n\0",0,0);
+   interrupt(33,0," Author(s): Kevin Jedreski\r\n\0",0,0);
    interrupt(33,0,"Hello World\r\n\0",0,0);
    interrupt(33,0,"\r\n\0",0,0);
    interrupt(33,0,"Enter a line: \0",0,0);
@@ -71,7 +57,7 @@ void main()
    interrupt(33,0,"\r\n\0",0,0);
    interrupt(33,0,"Enter a number: \0",0,0);
    interrupt(33,14,&x,0,0);
-   interrupt(33,0,"You entered \0",0,0);
+   interrupt(33,0,"\r\nYou entered: \0",0,0);
    interrupt(33,13,x,0,0);
    interrupt(33,0,"\r\n\0",0,0);
    while(1);
@@ -116,6 +102,7 @@ void readString(char* c)
   /*when enter is pressed, add 0x0 to end of char array */
   c[index]=0;
   printString("\r\n");
+/*echo back string on next line */
   printString(c);
   	 return;
 }
@@ -128,6 +115,7 @@ void clearScreen(int bx, int cx)
     interrupt(16,14*256+'\n',0,0,0);
     index =index+1;
   }
+/*manage colors */
   interrupt(16,512,0,0,0);
    if (bx>0 && cx>0){
     if (bx<=8 || cx<=16)
@@ -152,11 +140,9 @@ int div(int a, int b)
 
 void writeInt(int x)
 {
-
    char number[6], *d;
    int q = x, r;
    int save;
-
    if (x < 1)
    {
       d = number; *d = 0x30; d++; *d = 0x0; d--;
@@ -176,7 +162,6 @@ void writeInt(int x)
       }
       d++;
    }
-
    printString(d);
 }
 
@@ -186,27 +171,35 @@ void ReadInt(int* number)
   int index=0;
   char input[20];
   int temp=10;
+  /*Gather input */
   readString(input);
-  /*printString(input);
-  printString("\r\n\0");
-  printString(input[0]);*/
-   /*multiply by 10 each time */
   while (input[index]!='\0'){
-    /*writeInt(sum);*/
-  #if 0
-
-    interrupt(16, 3584 + input[index],0,0,0);
-    printString("\r\n\0");
-    writeInt(input[index] - 48);
-    printString("\r\n\0");
-  #endif
     sum = sum * 10 + (input[index]-48);
     index = index+1;
   }
-   /*writeInt(sum);*/
   *number = sum;
-
 }
+
+/* 
+functions to add TODO: lab 2
+*/
+
+void readSector(int bx, int cx){
+  return;
+}
+
+void readFile(int bx, int cx, int dx){
+  return;
+}
+
+void runProgram(int bx,int cx){
+  return;
+}
+
+void stop() {
+  return;
+}
+
 
 // interrupt service routine to manage interrupt vector table
 void handleInterrupt21(int ax, int bx, int cx, int dx){
@@ -215,6 +208,18 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
   }
   else if (ax==1){
     readString(bx);
+  }
+  else if (ax==2){
+    return;
+  }
+  else if (ax==3){
+    return;
+  }
+  else if (ax==4){
+   return;
+  }
+  else if (ax==5){
+   return;	
   }
   else if (ax==12){
     clearScreen(bx,cx);
@@ -228,24 +233,4 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
   else {
     printString("Incorrect service call\0");
   }
-  /*read number as a character string.*/
-  /*char input[80]; */
-  /*first handle input for reading integers  */
-  /*int index=0; */
-  /*build character array */
-  /*TODO: Biggest goal, print ascii of a number, converting character to int */
-
-  /*read number in as character string */
-  /*readString(input);*/
-  /*from left to right - convert the ASCII chars for eaach individual digit */
-  /*while(input[index]!='\0'){ */
-    /*to convert to from ascii to integer, subtract 48 */
-    /*TODO: multiply by 10 each iteration once we fix 0 bug */
-    /*sum = (input[index]-48)+sum;
-    index = index+1;*/
-    /*printString("\r\nindex is= \0");
-    writeInt(23); */
-  /*}*/
-  /*STORE sum at the address provided as an argument. */
-
 }
