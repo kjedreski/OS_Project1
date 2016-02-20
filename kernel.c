@@ -36,8 +36,7 @@ void clearScreen(int,int);*/
 void handleInterrupt21(int,int,int,int);
 void main()
 {
-   char line[80];
-   int x;
+   char buffer[512];
    makeInterrupt21();
    interrupt(33,12,4,5,0);
    interrupt(33,0,"___.   .__                 __       .___           \r\n\0",0,0);
@@ -48,18 +47,8 @@ void main()
    interrupt(33,0,"     \\/          \\/     \\/     \\/    \\/         \\/ \r\n\0",0,0);
    interrupt(33,0," V. 1.02, C. 2016. Based on a project by M. Black. \r\n\0",0,0);
    interrupt(33,0," Author(s): Kevin Jedreski\r\n\0",0,0);
-   interrupt(33,0,"Hello World\r\n\0",0,0);
-   interrupt(33,0,"\r\n\0",0,0);
-   interrupt(33,0,"Enter a line: \0",0,0);
-   interrupt(33,1,line,0,0);
-   interrupt(33,0,"\r\nYou wrote: \0",0,0);
-   interrupt(33,0,line,0,0);
-   interrupt(33,0,"\r\n\0",0,0);
-   interrupt(33,0,"Enter a number: \0",0,0);
-   interrupt(33,14,&x,0,0);
-   interrupt(33,0,"\r\nYou entered: \0",0,0);
-   interrupt(33,13,x,0,0);
-   interrupt(33,0,"\r\n\0",0,0);
+   interrupt(33,2,buffer,30,0);
+   interrupt(33,0,buffer,0,0);
    while(1);
 }
 
@@ -184,7 +173,16 @@ void ReadInt(int* number)
 functions to add TODO: lab 2
 */
 
-void readSector(int bx, int cx){
+void readSector(char* buffer, int sector){
+  int relSecNo;
+  int headNo;
+  int trackNo;
+  relSecNo = mod(sector,18)+1;
+  headNo = mod(div(sector,18),2);
+  trackNo = mod(sector,36);
+  interrupt(19,2,1,buffer,trackNo,relSecNo,headNo,0);
+  //call interrupt 19 to read sector into buffer
+  
   return;
 }
 
@@ -210,7 +208,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
     readString(bx);
   }
   else if (ax==2){
-    return;
+    readSector(bx,cx);
   }
   else if (ax==3){
     return;
