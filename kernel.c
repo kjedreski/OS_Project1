@@ -154,6 +154,7 @@ void writeInt(int x)
    printString(d);
 }
 
+
 void ReadInt(int* number)
 {
   int sum =0;
@@ -169,7 +170,8 @@ void ReadInt(int* number)
   *number = sum;
 }
 
-/* 
+
+/*
 functions to add TODO: lab 2
 */
 
@@ -179,10 +181,11 @@ void readSector(char* buffer, int sector){
   int trackNo;
   relSecNo = mod(sector,18)+1;
   headNo = mod(div(sector,18),2);
-  trackNo = mod(sector,36);
+  trackNo = div(sector,36);
+  printString("trackNo= \n\r\0");
+  writeInt(trackNo);
   interrupt(19,2,1,buffer,trackNo,relSecNo,headNo,0);
   //call interrupt 19 to read sector into buffer
-  
   return;
 }
 
@@ -217,7 +220,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
    return;
   }
   else if (ax==5){
-   return;	
+   return;
   }
   else if (ax==12){
     clearScreen(bx,cx);
