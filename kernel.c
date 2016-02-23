@@ -16,7 +16,7 @@
 /*   file during the discussion.                                          */
 /*                                                                        */
 /* - I have violated neither the spirit nor letter of these restrictions. */
-/*                                                                        */
+/*sd                                                                        */
 /*                                                                        */
 /*                                                                        */
 /* Signed:Kevin Jedreski Date:  Feb-11-2016 */
