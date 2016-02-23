@@ -170,26 +170,25 @@ void ReadInt(int* number)
   *number = sum;
 }
 
-
 /*
 functions to add TODO: lab 2
 */
 
 void readSector(char* buffer, int sector){
-  int relSecNo;
-  int headNo;
-  int trackNo;
-  relSecNo = mod(sector,18)+1;
-  headNo = mod(div(sector,18),2);
-  trackNo = div(sector,36);
-  printString("trackNo= \n\r\0");
-  writeInt(trackNo);
-  interrupt(19,2,1,buffer,trackNo,relSecNo,headNo,0);
+  int relSecNo = mod(sector,18)+1;
+  int headNo = mod(div(sector,18),2);
+  int trackNo = div(sector,36);
+  int AX = 2*256+1;
+  int CX = trackNo * 256 + relSecNo; 
+  int DX = headNo*256 + 0; 
+
+  interrupt(19,AX,buffer,CX,DX);
   //call interrupt 19 to read sector into buffer
   return;
 }
 
 void readFile(int bx, int cx, int dx){
+  
   return;
 }
 
@@ -199,6 +198,18 @@ void runProgram(int bx,int cx){
 
 void stop() {
   return;
+}
+
+void error(int bx){
+
+if (bx==0){
+  printString("File is not found \r\n\0");
+ }
+
+else {
+  printString("General DOS failure  \r\n\0");
+}
+
 }
 
 
@@ -230,6 +241,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
   }
   else if (ax==14){
     ReadInt(bx);
+  }
+  else if (ax==15){
+      error(bx);
   }
   else {
     printString("Incorrect service call\0");
