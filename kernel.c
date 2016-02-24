@@ -36,7 +36,8 @@ void clearScreen(int,int);*/
 void handleInterrupt21(int,int,int,int);
 void main()
 {
-   char buffer[512];
+   char buffer[13312];
+   int size;
    makeInterrupt21();
    interrupt(33,12,4,5,0);
    interrupt(33,0,"___.   .__                 __       .___           \r\n\0",0,0);
@@ -47,7 +48,7 @@ void main()
    interrupt(33,0,"     \\/          \\/     \\/     \\/    \\/         \\/ \r\n\0",0,0);
    interrupt(33,0," V. 1.02, C. 2016. Based on a project by M. Black. \r\n\0",0,0);
    interrupt(33,0," Author(s): Kevin Jedreski\r\n\0",0,0);
-   interrupt(33,2,buffer,30,0);
+   interrupt(33,3,"msg\0",buffer,&size);
    interrupt(33,0,buffer,0,0);
    while(1);
 }
@@ -173,33 +174,6 @@ void ReadInt(int* number)
 /*
 functions to add TODO: lab 2
 */
-
-void readSector(char* buffer, int sector){
-  int relSecNo = mod(sector,18)+1;
-  int headNo = mod(div(sector,18),2);
-  int trackNo = div(sector,36);
-  int AX = 2*256+1;
-  int CX = trackNo * 256 + relSecNo; 
-  int DX = headNo*256 + 0; 
-
-  interrupt(19,AX,buffer,CX,DX);
-  //call interrupt 19 to read sector into buffer
-  return;
-}
-
-void readFile(int bx, int cx, int dx){
-  
-  return;
-}
-
-void runProgram(int bx,int cx){
-  return;
-}
-
-void stop() {
-  return;
-}
-
 void error(int bx){
 
 if (bx==0){
@@ -211,6 +185,85 @@ else {
 }
 
 }
+
+void readSector(char* buffer, int sector){
+  int relSecNo = mod(sector,18)+1;
+  int headNo = mod(div(sector,18),2);
+  int trackNo = div(sector,36);
+  int AX = 2*256+1;
+  int CX = trackNo * 256 + relSecNo;
+  int DX = headNo*256 + 0;
+
+  interrupt(19,AX,buffer,CX,DX);
+  /*call interrupt 19 to read sector into buffer*/
+  return;
+}
+
+void readFile(char* fname, char * buffer, int* size){
+  int fnameCount=0;
+  int i=0;
+  int isMatch;
+  int d=0;
+  /* for part 1*/
+  char Arr[512];
+  /* track indices of Arr in here*/
+  int trackSector[512];
+  /*count how mayn chars file has*/
+  while (fname[i]!='\0'){
+   fnameCount = fnameCount+1;
+   i = i+1;
+  }
+ /* Load the directory sector into a 512-byte chars array called Arr*/
+ /* directory sector is #4*/
+  readSector(Arr,4);
+/*sector now read into buffer[]512-byte */
+
+/* iterate through directory array and match filename*/
+  for ( i = 0; i < fnameCount; i++){
+  /*for each char of filename, go through buffer if there's a match
+  increment isMatch by 1, and at the end compare size of isMatch to fnameCount*/
+  /*track sector number using index */
+    for ( d =0; d < 512; d++) {
+      if (fname[i]==Arr[d]){
+      trackSector[i]=d;
+      isMatch = isMatch+1;
+     }
+   }
+  }
+
+  printString("\nisMatch length: \r\n\0");
+  writeInt(isMatch);
+  printString("\nisfnameCount length: \r\n\0");
+  writeInt(fnameCount);
+
+
+
+
+  /* check to see if file name is in directory*/
+  /*if (isMatch==fnameCount){*/
+     /* read all sector numbers from trackSector into buffer*/
+    i=0;
+    while (trackSector[i]!='\0'){
+      readSector(buffer+512,trackSector[i]);
+      i= i+1;
+     }
+/*  } */
+/* if file not found, throw error*/
+  /*else { */
+    /*error(0);
+  }   */
+
+}
+
+void runProgram(int bx,int cx){
+  return;
+}
+
+void stop() {
+  return;
+}
+
+
 
 
 // interrupt service routine to manage interrupt vector table
@@ -225,7 +278,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
     readSector(bx,cx);
   }
   else if (ax==3){
-    return;
+    readFile(bx,cx,dx);
   }
   else if (ax==4){
    return;
