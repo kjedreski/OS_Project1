@@ -65,6 +65,11 @@ void printString(char* c)
    return;
 }
 
+/*Helper function*/
+void printChar(char c){
+interrupt(16,14*256+c,0,0,0);
+}
+
 void readString(char* c)
  {
 	int index=0;
@@ -193,60 +198,97 @@ void readSector(char* buffer, int sector){
   int AX = 2*256+1;
   int CX = trackNo * 256 + relSecNo;
   int DX = headNo*256 + 0;
+  //printString("readSector value: \r\n\0");
+  //writeInt(sector);
 
   interrupt(19,AX,buffer,CX,DX);
   /*call interrupt 19 to read sector into buffer*/
   return;
 }
 
-void readFile(char* fname, char * buffer, int* size){
-  int fnameCount=0;
-  int i=0;
-  int isMatch;
-  int d=0;
+void readFile(char* fname, char* buffer, int* size){
+  int notFound = 0;
+  int fnameCount = 0;
+  int fileLength = 0;
+  int isMatch = 0;
+  int d = 0;
+  int i = 0;
+  int lastFileChar = 0;
+  int sectorLength=0;
+  int copycat =0;
   /* for part 1*/
   char Arr[512];
+  char trackSector[512];
   /* track indices of Arr in here*/
-  int trackSector[512];
+
+
   /*count how mayn chars file has*/
   while (fname[i]!='\0'){
-   fnameCount = fnameCount+1;
-   i = i+1;
+   i = i +1;
+   fileLength = fileLength+1;
   }
- /* Load the directory sector into a 512-byte chars array called Arr*/
- /* directory sector is #4*/
-  readSector(Arr,4);
-/*sector now read into buffer[]512-byte */
 
+ /* Load the directory sector into a 512-byte chars array called Arr*/
+  readSector(Arr,2);
+/*sector now read into buffer[]512-byte */
 /* iterate through directory array and match filename*/
-  for ( i = 0; i < fnameCount; i++){
   /*for each char of filename, go through buffer if there's a match
   increment isMatch by 1, and at the end compare size of isMatch to fnameCount*/
   /*track sector number using index */
-    for ( d =0; d < 512; d++) {
+  i=0;
+  while (notFound == 0) {
+    for ( d =0; d < 512; d ++) {
       if (fname[i]==Arr[d]){
-      trackSector[i]=d;
-      isMatch = isMatch+1;
+        i++;
+        isMatch = isMatch+1;
+        if (isMatch == fileLength) {notFound = 1; lastFileChar=d;}
      }
-   }
   }
+  //if filename not in first sector, add 512 and check next spot
+  if (notFound!=1) readSector(Arr+512,2);
+}
+printString("File found!\r\n\0");
+//TODO: error handling if file is not in system
 
-  printString("\nisMatch length: \r\n\0");
-  writeInt(isMatch);
-  printString("\nisfnameCount length: \r\n\0");
-  writeInt(fnameCount);
 
+// first 6 bytes are file name
+i=fileLength;
+while (i < 7 && i!=6 ){
+  lastFileChar++;
+  i++;
+}
 
+//set i to lastfilechar plus one, so we can start reading the sector
+i=lastFileChar+1;
+d=0;
+//read all sectors number, into each index of buffer
 
+while ( i < lastFileChar+26){
+  //this prints sector numbers
+  //writeInt(Arr[i]);
+  // i'm thinking we call readsector for each number in Arr[i]
+  //readsector(buffer[d],Arr[i])
+  trackSector[d] = Arr[i];
+  d++;
+  i++;
+}
 
   /* check to see if file name is in directory*/
   /*if (isMatch==fnameCount){*/
      /* read all sector numbers from trackSector into buffer*/
     i=0;
     while (trackSector[i]!='\0'){
-      readSector(buffer+512,trackSector[i]);
+      //TODO: the issue: buffer[i] I believe is passing char to a int
+      // parameter
+      //we may need to convert this char to a integer
+      readSector(buffer+copycat,trackSector[i]);
+      copycat = copycat + 512;
       i= i+1;
      }
+
+
+
+
 /*  } */
 /* if file not found, throw error*/
   /*else { */
