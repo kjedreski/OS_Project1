@@ -33,6 +33,8 @@ void readString(char*);
 void writeInt(int);
 void ReadInt(int*);
 void clearScreen(int,int);*/
+
+
 void handleInterrupt21(int,int,int,int);
 void main()
 {
@@ -48,8 +50,10 @@ void main()
    interrupt(33,0,"     \\/          \\/     \\/     \\/    \\/         \\/ \r\n\0",0,0);
    interrupt(33,0," V. 1.02, C. 2016. Based on a project by M. Black. \r\n\0",0,0);
    interrupt(33,0," Author(s): Kevin Jedreski\r\n\0",0,0);
-   interrupt(33,3,"msg\0",buffer,&size);
-   interrupt(33,0,buffer,0,0);
+   interrupt(33,4,"test1\0",2,0);
+   interrupt(33,0,"Error if this executes.\r\n\0",0,0);
+  /* interrupt(33,3,"msg\0",buffer,&size);
+   interrupt(33,0,buffer,0,0); */
    while(1);
 }
 
@@ -216,18 +220,16 @@ void readFile(char* fname, char* buffer, int* size){
   int lastFileChar = 0;
   int sectorLength=0;
   int copycat =0;
-  /* for part 1*/
+  int Error=0;
+  /* copy directory sector */
   char Arr[512];
+  /*store all sector numbers here */
   char trackSector[512];
-  /* track indices of Arr in here*/
-
-
-  /*count how mayn chars file has*/
+  /*calculate file length*/
   while (fname[i]!='\0'){
    i = i +1;
    fileLength = fileLength+1;
   }
-
  /* Load the directory sector into a 512-byte chars array called Arr*/
   readSector(Arr,2);
 /*sector now read into buffer[]512-byte */
@@ -236,7 +238,6 @@ void readFile(char* fname, char* buffer, int* size){
   increment isMatch by 1, and at the end compare size of isMatch to fnameCount*/
   /*track sector number using index */
   i=0;
-  while (notFound == 0) {
     for ( d =0; d < 512; d ++) {
       if (fname[i]==Arr[d]){
         i++;
@@ -244,68 +245,63 @@ void readFile(char* fname, char* buffer, int* size){
         if (isMatch == fileLength) {notFound = 1; lastFileChar=d;}
      }
   }
-  //if filename not in first sector, add 512 and check next spot
-  if (notFound!=1) readSector(Arr+512,2);
+  //reach end of disk and no file?: "Throw error"
+//if error status is 1, file was not found
+//TODO: implement error handling
+if (Error==1){
+  error(0);
 }
+else {
 printString("File found!\r\n\0");
 //TODO: error handling if file is not in system
-
-
-// first 6 bytes are file name
 i=fileLength;
 while (i < 7 && i!=6 ){
   lastFileChar++;
   i++;
 }
-
 //set i to lastfilechar plus one, so we can start reading the sector
 i=lastFileChar+1;
 d=0;
 //read all sectors number, into each index of buffer
-
 while ( i < lastFileChar+26){
-  //this prints sector numbers
-  //writeInt(Arr[i]);
-  // i'm thinking we call readsector for each number in Arr[i]
-  //readsector(buffer[d],Arr[i])
   trackSector[d] = Arr[i];
   d++;
   i++;
 }
-
   /* check to see if file name is in directory*/
-  /*if (isMatch==fnameCount){*/
-     /* read all sector numbers from trackSector into buffer*/
-    i=0;
-    while (trackSector[i]!='\0'){
-      //TODO: the issue: buffer[i] I believe is passing char to a int
-      // parameter
-      //we may need to convert this char to a integer
-      readSector(buffer+copycat,trackSector[i]);
-      copycat = copycat + 512;
-      i= i+1;
-     }
-
-
-
-
-/*  } */
-/* if file not found, throw error*/
-  /*else { */
-    /*error(0);
-  }   */
-
+  /* read all sector numbers from trackSector into buffer*/
+i=0;
+while (trackSector[i]!='\0'){
+  readSector(buffer+copycat,trackSector[i]);
+  copycat = copycat + 512;
+  i= i+1;
+    }
+  }
 }
 
-void runProgram(int bx,int cx){
+void runProgram(char *name, int segment){
+  // load file into buffer
+char buffer[13312];
+int size;
+int base_location = segment*4096;
+int index=0;
+int offset=0;
+readFile(name,buffer,&size);
+
+
+while (buffer[index]!='\0'){
+  putInMemory(base_location,offset,buffer[index]);
+  offset+=16;
+  ++index;
+}
+
+launchProgram(base_location);
   return;
 }
 
 void stop() {
   return;
 }
-
-
 
 
 // interrupt service routine to manage interrupt vector table
@@ -323,6 +319,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
     readFile(bx,cx,dx);
   }
   else if (ax==4){
+    runProgram(bx,cx);
    return;
   }
   else if (ax==5){
