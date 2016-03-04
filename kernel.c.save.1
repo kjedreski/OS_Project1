@@ -23,7 +23,6 @@
 /*                                                                        */
 /*                                                                        */
 /* 3460:4/526 BlackDOS kernel, Version 1.02, Spring 2016.                 */
-
 /*
 Kevin Jedreski
 Operating Systems Project 1
@@ -34,6 +33,7 @@ void readString(char*);
 void writeInt(int);
 void ReadInt(int*);
 void clearScreen(int,int);*/
+
 
 void handleInterrupt21(int,int,int,int);
 void main()
@@ -50,10 +50,12 @@ void main()
    interrupt(33,0,"     \\/          \\/     \\/     \\/    \\/         \\/ \r\n\0",0,0);
    interrupt(33,0," V. 1.02, C. 2016. Based on a project by M. Black. \r\n\0",0,0);
    interrupt(33,0," Author(s): Kevin Jedreski\r\n\0",0,0);
+  /* interrupt(33,4,"test2/0",2,0);
+   interrupt(33,5,0,0,0);
    /*interrupt(33,4,"test1\0",2,0);
-   interrupt(33,0,"Error if this executes.\r\n\0",0,0);*/
+   interrupt(33,0,"Error if this executes.\r\n\0",0,0); */
    interrupt(33,3,"msg\0",buffer,&size);
-   interrupt(33,0,buffer,0,0);
+   interrupt(33,0,buffer,0,0); 
    while(1);
 }
 
@@ -204,6 +206,7 @@ void readSector(char* buffer, int sector){
   int DX = headNo*256 + 0;
   //printString("readSector value: \r\n\0");
   //writeInt(sector);
+
   interrupt(19,AX,buffer,CX,DX);
   /*call interrupt 19 to read sector into buffer*/
   return;
@@ -233,24 +236,36 @@ void readFile(char* fname, char* buffer, int* size){
   readSector(Arr,2);
 /*sector now read into buffer[]512-byte */
 /* iterate through directory array and match filename*/
-/*for each char of filename, go through buffer if there's a match
+  /*for each char of filename, go through buffer if there's a match
   increment isMatch by 1, and at the end compare size of isMatch to fnameCount*/
   /*track sector number using index */
   i=0;
     for ( d =0; d < 512; d ++) {
-      if (fname[i]==Arr[d]){
+     /*if first number of sector is zero: no file. short-circuit */
+     if(Arr[d]==0) continue;
+      for ( i = 0; i < 6 ; i ++){
+      if (fname[i]==Arr[i]){
         i++;
         isMatch = isMatch+1;
-        if (isMatch == fileLength) {notFound = 1; lastFileChar=d; break;}
+        if (isMatch == fileLength) {notFound = 1; lastFileChar=d+i; break;}
      }
   }
-//reach end of disk and no file?: "Throw error"
+}
+printString("isMatch: \r\n\0");
+writeInt(isMatch);
+if (isMatch!=fileLength){
+  Error=1; 
+  }*/
+
+  //reach end of disk and no file?: "Throw error"
 //if error status is 1, file was not found
 //TODO: implement error handling
-if (d==512){
+if (Error==1){
   error(0);
 }
 else {
+printString("File found!\r\n\0");
+//TODO: error handling if file is not in system
 i=fileLength;
 while (i < 7 && i!=6 ){
   lastFileChar++;
@@ -293,11 +308,14 @@ while (index!=13312){
 }
 
 launchProgram(base_location);
+
   return;
 }
 
 void stop() {
-  return;
+
+  while (1) ;
+
 }
 
 
@@ -317,10 +335,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
   }
   else if (ax==4){
     runProgram(bx,cx);
-   return;
   }
   else if (ax==5){
-   return;
+    stop();
   }
   else if (ax==12){
     clearScreen(bx,cx);
