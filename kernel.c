@@ -289,8 +289,8 @@ int offset=0;
 readFile(name,buffer,&size);
 
 
-while (buffer[index]!='\0'){
-  putInMemory(base_location,offset,buffer[index]);
+while (index!=13312){
+  putInMemory(base_location,index,buffer[index]);
   offset+=16;
   ++index;
 }
