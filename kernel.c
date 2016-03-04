@@ -52,8 +52,12 @@ void main()
    interrupt(33,0," Author(s): Kevin Jedreski\r\n\0",0,0);
    /*interrupt(33,4,"test1\0",2,0);
    interrupt(33,0,"Error if this executes.\r\n\0",0,0);*/
-   interrupt(33,3,"msg\0",buffer,&size);
-   interrupt(33,0,buffer,0,0);
+   /*interrupt(33,3,"msg\0",buffer,&size);
+   interrupt(33,0,buffer,0,0);*/
+  /* interrupt(33,4,"test1\0",2,0);
+   interrupt(33,5,0,0,0);*/
+   interrupt(33,4,"fib\0",2,0);
+   interrupt(33,5,0,0,0);
    while(1);
 }
 
@@ -284,20 +288,16 @@ int base_location = segment*4096;
 int index=0;
 int offset=0;
 readFile(name,buffer,&size);
-
-
 while (index!=13312){
   putInMemory(base_location,index,buffer[index]);
   offset+=16;
   ++index;
-}
-
+  }
 launchProgram(base_location);
-  return;
 }
 
 void stop() {
-  return;
+  while(1);
 }
 
 
@@ -317,10 +317,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
   }
   else if (ax==4){
     runProgram(bx,cx);
-   return;
   }
   else if (ax==5){
-   return;
+   stop();
   }
   else if (ax==12){
     clearScreen(bx,cx);
