@@ -23,6 +23,7 @@
 /*                                                                        */
 /*                                                                        */
 /* 3460:4/526 BlackDOS kernel, Version 1.02, Spring 2016.                 */
+
 /*
 Kevin Jedreski
 Operating Systems Project 1
@@ -33,7 +34,6 @@ void readString(char*);
 void writeInt(int);
 void ReadInt(int*);
 void clearScreen(int,int);*/
-
 
 void handleInterrupt21(int,int,int,int);
 void main()
@@ -50,10 +50,10 @@ void main()
    interrupt(33,0,"     \\/          \\/     \\/     \\/    \\/         \\/ \r\n\0",0,0);
    interrupt(33,0," V. 1.02, C. 2016. Based on a project by M. Black. \r\n\0",0,0);
    interrupt(33,0," Author(s): Kevin Jedreski\r\n\0",0,0);
-   interrupt(33,4,"test1\0",2,0);
-   interrupt(33,0,"Error if this executes.\r\n\0",0,0);
-  /* interrupt(33,3,"msg\0",buffer,&size);
-   interrupt(33,0,buffer,0,0); */
+   /*interrupt(33,4,"test1\0",2,0);
+   interrupt(33,0,"Error if this executes.\r\n\0",0,0);*/
+   interrupt(33,3,"msg\0",buffer,&size);
+   interrupt(33,0,buffer,0,0);
    while(1);
 }
 
@@ -204,7 +204,6 @@ void readSector(char* buffer, int sector){
   int DX = headNo*256 + 0;
   //printString("readSector value: \r\n\0");
   //writeInt(sector);
-
   interrupt(19,AX,buffer,CX,DX);
   /*call interrupt 19 to read sector into buffer*/
   return;
@@ -242,13 +241,13 @@ void readFile(char* fname, char* buffer, int* size){
       if (fname[i]==Arr[d]){
         i++;
         isMatch = isMatch+1;
-        if (isMatch == fileLength) {notFound = 1; lastFileChar=d;}
+        if (isMatch == fileLength) {notFound = 1; lastFileChar=d; break;}
      }
   }
   //reach end of disk and no file?: "Throw error"
 //if error status is 1, file was not found
 //TODO: implement error handling
-if (Error==1){
+if (d==512){
   error(0);
 }
 else {

@@ -18,4 +18,5 @@ dd if=msg of=floppya.img bs=512 count=1 seek=30 conv=notrunc
 #run bochs with the txt file that contains configurations.
 ./loadFile msg
 ./loadFile test1
+./loadFile test2
 bochs -f osxterm.txt
