@@ -287,11 +287,9 @@ char buffer[13312];
 int size;
 int base_location = segment*4096;
 int index=0;
-int offset=0;
 readFile(name,buffer,&size);
 while (index!=13312){
   putInMemory(base_location,index,buffer[index]);
-  offset+=16;
   ++index;
   }
 launchProgram(base_location);
