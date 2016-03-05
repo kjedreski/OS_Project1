@@ -57,9 +57,10 @@ void main()
   /* interrupt(33,4,"test1\0",2,0);
    interrupt(33,5,0,0,0);*/
    interrupt(33,4,"fib\0",2,0);
-   interrupt(33,5,0,0,0);
+   interrupt(33,3,"Error if this executes. \r\n\0",0,0);
    while(1);
 }
+
 
 void printString(char* c)
 {
