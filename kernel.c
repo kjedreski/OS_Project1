@@ -26,14 +26,8 @@
 
 /*
 Kevin Jedreski
-Operating Systems Project 1
+Operating Systems Project 2
 */
-
-/*void printString(char*);
-void readString(char*);
-void writeInt(int);
-void ReadInt(int*);
-void clearScreen(int,int);*/
 
 void handleInterrupt21(int,int,int,int);
 void main()
@@ -49,13 +43,7 @@ void main()
    interrupt(33,0," |___  /____(____  /\\___  >__|_ \\____ |\\___/____  >\r\n\0",0,0);
    interrupt(33,0,"     \\/          \\/     \\/     \\/    \\/         \\/ \r\n\0",0,0);
    interrupt(33,0," V. 1.02, C. 2016. Based on a project by M. Black. \r\n\0",0,0);
-   interrupt(33,0," Author(s): Kevin Jedreski\r\n\0",0,0);
-   /*interrupt(33,4,"test1\0",2,0);
-   interrupt(33,0,"Error if this executes.\r\n\0",0,0);*/
-   /*interrupt(33,3,"msg\0",buffer,&size);
-   interrupt(33,0,buffer,0,0);*/
-  /* interrupt(33,4,"test1\0",2,0);
-   interrupt(33,5,0,0,0);*/
+   interrupt(33,0,"Author(s): Kevin Jedreski\r\n\0",0,0);
    interrupt(33,4,"fib\0",2,0);
    interrupt(33,0,"Error if this executes. \r\n\0",0,0);
    while(1);
@@ -185,19 +173,14 @@ void ReadInt(int* number)
   *number = sum;
 }
 
-/*
-functions to add TODO: lab 2
-*/
 void error(int bx){
-
-if (bx==0){
-  printString("File is not found \r\n\0");
- }
-
-else {
-  printString("General DOS failure  \r\n\0");
-}
-
+  /*Error handling */
+  if (bx==0){
+    printString("File is not found \r\n\0");
+   }
+  else {
+    printString("General DOS failure  \r\n\0");
+  }
 }
 
 void readSector(char* buffer, int sector){
@@ -207,22 +190,22 @@ void readSector(char* buffer, int sector){
   int AX = 2*256+1;
   int CX = trackNo * 256 + relSecNo;
   int DX = headNo*256 + 0;
-  //printString("readSector value: \r\n\0");
-  //writeInt(sector);
+  /*Read/write sectors from floppy disk */
   interrupt(19,AX,buffer,CX,DX);
-  /*call interrupt 19 to read sector into buffer*/
-  return;
 }
 
 void readFile(char* fname, char* buffer, int* size){
-  int notFound = 0;
-  int fnameCount = 0;
+  /*fileLength count length of file string */
   int fileLength = 0;
+  /*fileLength is used to find file name in sectors */
   int isMatch = 0;
+  /*d and i are iterators used multiple times for arrays */
   int d = 0;
   int i = 0;
+  /*lastFileChar finds the index number, for last char in file string */
   int lastFileChar = 0;
-  int sectorLength=0;
+  /*copycat is used for storing data in memory from buffer, by adding 512
+  each time. */
   int copycat =0;
   int Error=0;
   /* copy directory sector */
@@ -246,32 +229,32 @@ void readFile(char* fname, char* buffer, int* size){
       if (fname[i]==Arr[d]){
         i++;
         isMatch = isMatch+1;
-        if (isMatch == fileLength) {notFound = 1; lastFileChar=d; break;}
+        if (isMatch == fileLength) { lastFileChar=d; break;}
      }
   }
-//reach end of disk and no file?: "Throw error"
-//if error status is 1, file was not found
-//TODO: implement error handling
+/*reach end of disk and no file?: "Throw error"
+if d is 512, than it is garuenteed there is no file match
+ */
 if (d==512){
   error(0);
 }
 else {
-i=fileLength;
+  i=fileLength;
 while (i < 7 && i!=6 ){
   lastFileChar++;
   i++;
 }
-//set i to lastfilechar plus one, so we can start reading the sector
+/*set i to lastfilechar plus one, so we can start reading the sector*/
 i=lastFileChar+1;
 d=0;
-//read all sectors number, into each index of buffer
+/* read all sectors number, into each index of buffer */
 while ( i < lastFileChar+26){
   trackSector[d] = Arr[i];
   d++;
   i++;
 }
-  /* check to see if file name is in directory*/
-  /* read all sector numbers from trackSector into buffer*/
+/* check to see if file name is in directory*/
+/* read all sector numbers from trackSector into buffer*/
 i=0;
 while (trackSector[i]!='\0'){
   readSector(buffer+copycat,trackSector[i]);
@@ -288,10 +271,12 @@ int size;
 int base_location = segment*4096;
 int index=0;
 readFile(name,buffer,&size);
+/*loads in memory segment location and then loads in buffer info */
 while (index!=13312){
   putInMemory(base_location,index,buffer[index]);
   ++index;
   }
+  /*launches program */
 launchProgram(base_location);
 }
 
