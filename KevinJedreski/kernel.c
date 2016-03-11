@@ -44,7 +44,7 @@ void main()
    interrupt(33,0,"     \\/          \\/     \\/     \\/    \\/         \\/ \r\n\0",0,0);
    interrupt(33,0," V. 1.02, C. 2016. Based on a project by M. Black. \r\n\0",0,0);
    interrupt(33,0,"Author(s): Kevin Jedreski\r\n\0",0,0);
-   interrupt(33,4,"fi\0",2,0);
+   interrupt(33,4,"fib\0",2,0);
    interrupt(33,0,"Error if this executes. \r\n\0",0,0);
    while(1);
 }
@@ -195,7 +195,6 @@ void readSector(char* buffer, int sector){
 }
 
 void readFile(char* fname, char* buffer, int* size){
-  int matching = 0;
   /*fileLength count length of file string */
   int fileLength = 0;
   /*fileLength is used to find file name in sectors */
@@ -227,19 +226,12 @@ void readFile(char* fname, char* buffer, int* size){
   /*track sector number using index */
   i=0;
     for ( d =0; d < 512; d ++) {
-      if (fname[i]!=Arr[d]){matching = 0;}
       if (fname[i]==Arr[d]){
         i++;
-        isMatch++;
-        matching = 1;
-        if (isMatch == fileLength) { lastFileChar=d; break; }
+        isMatch = isMatch+1;
+        if (isMatch == fileLength) { lastFileChar=d; break;}
      }
-
-    /* if ()
-     if (fname[i]!=Arr[d] && matching==1){isMatch=0;} */
   }
-  if (isMatch!=fileLength) {d=512;}
-
 /*reach end of disk and no file?: "Throw error"
 if d is 512, than it is garuenteed there is no file match
  */
