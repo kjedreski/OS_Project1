@@ -13,9 +13,9 @@ ld86 -o kernel -d kernel.o kernel_asm.o
 #CMDs below link and make exe fib
 #compile and link with fib
 #the only assembly function we need is interrupt
-#bcc -ansi -c -o fib.o fib.c
-#as86 lib.asm -o lib_asm.o
-#ld86 -o fib -d fib.o lib_asm.o
+bcc -ansi -c -o fib.o fib.c
+as86 lib.asm -o lib_asm.o
+ld86 -o fib -d fib.o lib_asm.o
 #make fib
 #sector floppya.img at sector 3
 dd if=kernel of=floppya.img bs=512 conv=notrunc seek=3
@@ -26,5 +26,3 @@ dd if=msg of=floppya.img bs=512 count=1 seek=30 conv=notrunc
 ./loadFile msg
 ./loadFile test1
 ./loadFile test2
-#run bochs with the txt file that contains configurations.
-bochs -f osxterm.txt

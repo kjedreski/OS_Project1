@@ -26,7 +26,7 @@
 
 /*
 Kevin Jedreski
-Operating Systems Project 2
+Operating Systems Project 3
 */
 
 void handleInterrupt21(int,int,int,int);
@@ -44,8 +44,13 @@ void main()
    interrupt(33,0,"     \\/          \\/     \\/     \\/    \\/         \\/ \r\n\0",0,0);
    interrupt(33,0," V. 1.02, C. 2016. Based on a project by M. Black. \r\n\0",0,0);
    interrupt(33,0,"Author(s): Kevin Jedreski\r\n\0",0,0);
-   interrupt(33,4,"fi\0",2,0);
-   interrupt(33,0,"Error if this executes. \r\n\0",0,0);
+  // interrupt(33,7,"fib\0",2,0);
+  // interrupt(33,7,"test1\0",2,0);
+  // interrupt(33,7,"test2\0",2,0);
+   //interrupt(33,7,"msg\0",2,0);
+     interrupt(33,8,"NewIsh\0",2,0);
+   //interrupt(33,4,"fib\0",2,0);
+   //interrupt(33,0,"Error if this executes. \r\n\0",0,0);
    while(1);
 }
 
@@ -227,16 +232,13 @@ void readFile(char* fname, char* buffer, int* size){
   /*track sector number using index */
   i=0;
     for ( d =0; d < 512; d ++) {
-      if (fname[i]!=Arr[d]){matching = 0;}
+      //if (fname[i]!=Arr[d]){matching = 0;}
       if (fname[i]==Arr[d]){
         i++;
         isMatch++;
-        matching = 1;
+      //  matching = 1;
         if (isMatch == fileLength) { lastFileChar=d; break; }
      }
-
-    /* if ()
-     if (fname[i]!=Arr[d] && matching==1){isMatch=0;} */
   }
   if (isMatch!=fileLength) {d=512;}
 
@@ -292,6 +294,179 @@ void stop() {
   while(1);
 }
 
+/*ADD skeletons for project 3 here */
+/*NOTES:
+bx = Address of character array storing sector to write
+cx = number of sector being written
+dx = Total number of sectors to be written
+ */
+
+ void writeSector(char* buffer, int sector){
+   int relSecNo = mod(sector,18)+1;
+   int headNo = mod(div(sector,18),2);
+   int trackNo = div(sector,36);
+   int AX = 769;
+   int CX = trackNo * 256 + relSecNo;
+   int DX = headNo*256 + 0;
+   /*Read/write sectors from floppy disk */
+   interrupt(19,AX,buffer,CX,DX);
+ }
+void deleteFile(char* name) {
+  // load disk directory(disk sector 2)
+  // load map (disk sector 2)
+  // into both 512 byte char arrays
+  char disk_Dir[512];
+  char map[512];
+  int i = 0;
+  int d = 0;
+  int fileLength = 0;
+  int isMatch = 0;
+  int matching = 0;
+  int lastFileChar = 0;
+  int holder[512];
+  readSector(disk_Dir,2);
+  readSector(map,1);
+  //search through directory and find file name
+  /*calculate file length*/
+  while (name[i]!='\0'){
+    i = i +1;
+    fileLength = fileLength+1;
+    }
+    /*iterate through directory array and match filename*/
+    /*for each char of filename, go through buffer if there's a match
+      increment isMatch by 1, and at the end compare size of isMatch to fnameCount*/
+      /*track sector number using index */
+  i=0;
+  for ( d =0; d < 512; d ++) {
+    if (name[i]== disk_Dir[d]){
+      i++;
+      isMatch++;
+      if (isMatch == fileLength) { lastFileChar = d; break; }
+      }
+    }
+  if (isMatch!=fileLength) {d=512;}
+  /*reach end of disk and no file?: "Throw error"
+  if d is 512, than it is garuenteed there is no file match
+   */
+  if (d==512){
+    error(0);
+  }
+  else {
+    i=fileLength;
+  while (i < 7 && i!=6 ){
+    lastFileChar++;
+    i++;
+  }
+  printString("lastFileChar is: \r\n\0");
+  writeInt(lastFileChar);
+  /*set i to lastfilechar plus one, so we can start reading the sector*/
+    //lastFileChar=lastFileChar+1;
+    //minus length from d and we get first byte
+    d = d-(fileLength-1);
+    /*HERE -> we set first byte of file name to zero */
+    disk_Dir[d]=0;
+    /*Now step through the sectors numbers listed as belonging to file */
+    /*for each sector, set the corresponding map byte to zero */
+    /*iterate over map sectors, after first 6 in directory */
+    for (i = lastFileChar-25; i < lastFileChar; i++){
+     map[i+1]=0;
+    }
+    /*Write the character arrays holding the directory and map back to their
+    appropiate sectors */
+    writeSector(map,1);
+    writeSector(disk_Dir,2);
+  }
+}
+
+void writeFile(char* name,char* buffer, int numberOfSectors) {
+  //puprose: writes a file to the disk
+  char map[512];
+  char dir[512];
+  int i=0;
+  int isMatch =0;
+  int fileLength =0;
+  int lastFileChar = 0;
+  int d=0;
+  int FreeEntry=0;
+  int helper=0;
+  int ctrl =1;
+  //Load map and directory sectors into buffers
+  readSector(map,1);
+  readSector(dir,2);
+  // search through the driectory, doing 2 things
+    //* if file name exists, call error
+    //* find and note afree directory enettry
+    while (name[i]!='\0'){
+      i = i +1;
+      fileLength = fileLength+1;
+      }
+      /*iterate through directory array and match filename*/
+      /*for each char of filename, go through buffer if there's a match
+        increment isMatch by 1, and at the end compare size of isMatch to fnameCount*/
+        /*track sector number using index */
+    i=0;
+    for ( d =0; d < 512; d ++) {
+      if (name[i]== dir[d]){
+        i++;
+        isMatch++;
+        if (isMatch == fileLength) { lastFileChar = d; break; }
+        }
+      //modulus 32, if 0 then theres a free entry at that sector
+      //ctrl enforces mechanism memory is contiguously stored
+      if (d%32==0 && ctrl==1 && dir[d]==0){
+        writeInt(d);
+        ctrl = 0;
+        FreeEntry = d;
+      }
+    }
+    if (isMatch==fileLength) {d=512;}
+    // file is already in system, throw error
+    if (d!=512){
+      error(0);
+    }
+    //FreeEntry is where we store the file name
+    //calc name length
+    while (name[i]!='\0'){
+      i = i +1;
+      fileLength = fileLength+1;
+      }
+    //copy name to that directory entry
+    // if length not 6, pad zeros till 6
+    //FreeENtry is the first spot in memory where it is free
+    // and can be used for storage
+    //helper will be used to validate fileLength
+    for (i = 0;i < fileLength; i++){
+      dir[FreeEntry+i] = name[i];
+      helper++;
+    }
+    // helper validates that is at least 6
+    for (i = fileLength; i < fileLength+6; i ++){
+      if (helper < 6){
+        helper++;
+        dir[i] = 0;
+      }
+      else break;
+    }
+
+//for each sector making up that file:
+  //a. find a free sector by searching through the map for zero
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
 
 // interrupt service routine to manage interrupt vector table
 void handleInterrupt21(int ax, int bx, int cx, int dx){
@@ -312,6 +487,18 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
   }
   else if (ax==5){
    stop();
+  }
+  else if (ax==6){
+    writeSector(bx,cx);
+  }
+  else if (ax==7) {
+    deleteFile(bx);
+  }
+  else if (ax==8){
+    writeFile(bx,cx,dx);
+  }
+  else if (ax==11){
+    interrupt(25,0,0,0,0);
   }
   else if (ax==12){
     clearScreen(bx,cx);
