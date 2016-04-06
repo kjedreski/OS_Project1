@@ -48,7 +48,8 @@ void main()
   // interrupt(33,7,"test1\0",2,0);
   // interrupt(33,7,"test2\0",2,0);
    //interrupt(33,7,"msg\0",2,0);
-     interrupt(33,8,"NewIsh\0",2,0);
+     interrupt(33,8,"red\0",2,1);
+     //interrupt(33,7,"red\0",2,0);
    //interrupt(33,4,"fib\0",2,0);
    //interrupt(33,0,"Error if this executes. \r\n\0",0,0);
    while(1);
@@ -387,9 +388,11 @@ void writeFile(char* name,char* buffer, int numberOfSectors) {
   int fileLength =0;
   int lastFileChar = 0;
   int d=0;
+  int e=0;
   int FreeEntry=0;
   int helper=0;
   int ctrl =1;
+  int addBuffer=0;
   //Load map and directory sectors into buffers
   readSector(map,1);
   readSector(dir,2);
@@ -409,20 +412,33 @@ void writeFile(char* name,char* buffer, int numberOfSectors) {
       if (name[i]== dir[d]){
         i++;
         isMatch++;
-        if (isMatch == fileLength) { lastFileChar = d; break; }
-        }
+        if (isMatch == fileLength) {
+          lastFileChar = d;
+          break;
+          }
+         }
       //modulus 32, if 0 then theres a free entry at that sector
       //ctrl enforces mechanism memory is contiguously stored
-      if (d%32==0 && ctrl==1 && dir[d]==0){
+      if (d%32==0 && ctrl==1 && dir[d]==0 && lastFileChar != d){
         writeInt(d);
         ctrl = 0;
         FreeEntry = d;
       }
     }
-    if (isMatch==fileLength) {d=512;}
+    if (isMatch==fileLength) {d=1000;}
     // file is already in system, throw error
-    if (d!=512){
-      error(0);
+    if (d==1000){
+      error(1);
+    }
+    //copy name to that directory entry
+    // if length not 6, pad zeros till 6
+    //FreeENtry is the first spot in memory where it is free
+    // and can be used for storage
+    //helper will be used to validate fileLength
+    for (i = 0;i < fileLength; i++){
+      printChar(name[i]);
+      dir[FreeEntry+i] = name[i];
+      helper++;
     }
     //FreeEntry is where we store the file name
     //calc name length
@@ -430,41 +446,43 @@ void writeFile(char* name,char* buffer, int numberOfSectors) {
       i = i +1;
       fileLength = fileLength+1;
       }
-    //copy name to that directory entry
-    // if length not 6, pad zeros till 6
-    //FreeENtry is the first spot in memory where it is free
-    // and can be used for storage
-    //helper will be used to validate fileLength
-    for (i = 0;i < fileLength; i++){
-      dir[FreeEntry+i] = name[i];
-      helper++;
-    }
+    // TODO: test validation length / padding
     // helper validates that is at least 6
     for (i = fileLength; i < fileLength+6; i ++){
       if (helper < 6){
         helper++;
-        dir[i] = 0;
+        dir[FreeEntry+i] = 0;
       }
       else break;
     }
 
-//for each sector making up that file:
-  //a. find a free sector by searching through the map for zero
+  //for each sector making up the file
+  for (i =0; i < numberOfSectors; i ++){
+    //find a free sector by searching map for a zero
+    for (d=0; d < 32; d ++){
+      if (map[d]==0){
+        map[d] = 255;
+        // add sector number to file's directory entry
+        dir[FreeEntry+helper]= d;
+        break;
+      }
+    }
+    //Write 512 bytes from buffer holding file to sector.
+    addBuffer = addBuffer + 512;
+    writeSector(buffer[addBuffer],d);
+    helper++;
+  }
 
+  //TODO: Test me. PADDING rest of sector
+  for (i = (FreeEntry+6); i < FreeEntry+32; i ++ ){
+    //pad the zeros.
+    dir[i] = 0;
+  }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+  //TODO: Write the map and directory sectors back to the disk
+  // TODO: test this.
+  writeSector(map,1);
+  writeSector(dir,2);
 
 }
 
