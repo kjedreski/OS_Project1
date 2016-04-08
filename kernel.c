@@ -28,7 +28,6 @@
 Kevin Jedreski
 Operating Systems Project 3
 */
-
 void handleInterrupt21(int,int,int,int);
 void main()
 {
@@ -44,12 +43,12 @@ void main()
    interrupt(33,0,"     \\/          \\/     \\/     \\/    \\/         \\/ \r\n\0",0,0);
    interrupt(33,0," V. 1.02, C. 2016. Based on a project by M. Black. \r\n\0",0,0);
    interrupt(33,0,"Author(s): Kevin Jedreski\r\n\0",0,0);
+   interrupt(33,4,"Shell\0",2,0);
+   interrupt(33,0,"Bad or missing command interpreter.\r\n\0",0,0);
   // interrupt(33,7,"fib\0",2,0);
-  // interrupt(33,7,"test1\0",2,0);
-  // interrupt(33,7,"test2\0",2,0);
    //interrupt(33,7,"msg\0",2,0);
-     interrupt(33,8,"red\0",2,1);
-     //interrupt(33,7,"red\0",2,0);
+   //interrupt(33,7,"test2\0",2,0);
+    //interrupt(33,8,"yo\0",2,1);
    //interrupt(33,4,"fib\0",2,0);
    //interrupt(33,0,"Error if this executes. \r\n\0",0,0);
    while(1);
@@ -181,12 +180,14 @@ void ReadInt(int* number)
 
 void error(int bx){
   /*Error handling */
-  if (bx==0){
+  if (bx==0)
     printString("File is not found \r\n\0");
-   }
-  else {
+  else if (bx==1)
     printString("General DOS failure  \r\n\0");
-  }
+  else if (bx==2)
+    printString("Disk Full.\r\n\0");
+  else printString("General Error. \r\n\0");
+
 }
 
 void readSector(char* buffer, int sector){
@@ -369,9 +370,14 @@ void deleteFile(char* name) {
     /*Now step through the sectors numbers listed as belonging to file */
     /*for each sector, set the corresponding map byte to zero */
     /*iterate over map sectors, after first 6 in directory */
-    for (i = lastFileChar-25; i < lastFileChar; i++){
-     map[i+1]=0;
+    lastFileChar++;
+    for (i=0; i < 26 ; i ++){
+      if (disk_Dir[lastFileChar+i] == 0) break;
+      map[disk_Dir[lastFileChar+i]]=0XBB;
     }
+  /*  for (i = lastFileChar-25; i < lastFileChar; i++){
+     map[i+1]=0;
+   }*/
     /*Write the character arrays holding the directory and map back to their
     appropiate sectors */
     writeSector(map,1);

@@ -8,21 +8,33 @@ dd if=dir.img of=floppya.img bs=512 count=1 seek=2 conv=notrunc
 #compile kernel
 bcc -ansi -c -o kernel.o kernel.c
 #assemby kernel.asm and link all files together to produce a file kernel
+#
+#
+#
 as86 kernel.asm -o kernel_asm.o
 ld86 -o kernel -d kernel.o kernel_asm.o
+#
+#
+#
+#
 #CMDs below link and make exe fib
 #compile and link with fib
 #the only assembly function we need is interrupt
-bcc -ansi -c -o fib.o fib.c
-as86 lib.asm -o lib_asm.o
-ld86 -o fib -d fib.o lib_asm.o
+#bcc -ansi -c -o fib.o fib.c
+#as86 lib.asm -o lib_asm.o
+#ld86 -o fib -d fib.o lib_asm.o
 #make fib
+#compile shell
+bcc -ansi -c -o Shell.o Shell.c
+as86 lib.asm -o lib_asm.o
+ld86 -o Shell -d Shell.o lib_asm.o
 #sector floppya.img at sector 3
 dd if=kernel of=floppya.img bs=512 conv=notrunc seek=3
 #reac Sector 30
 dd if=msg of=floppya.img bs=512 count=1 seek=30 conv=notrunc
 #loading files into disk
-./loadFile fib
-./loadFile msg
+./loadFile Shell
+#./loadFile fib
 ./loadFile test1
+./loadFile msg
 ./loadFile test2
