@@ -355,6 +355,7 @@ void deleteFile(char* name) {
   /*reach end of disk and no file?: "Throw error"
   if d is 512, than it is garuenteed there is no file match
    */
+   //TODO: assert file isn't capitalized.
   if (d==512){
     error(0);
   }
@@ -542,6 +543,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
   }
   else if (ax==15){
       error(bx);
+  }
+  else if (ax==66){
+      printChar(bx);
   }
   else {
     printString("Incorrect service call\0");

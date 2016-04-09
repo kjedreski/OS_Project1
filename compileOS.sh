@@ -34,8 +34,8 @@ dd if=kernel of=floppya.img bs=512 conv=notrunc seek=3
 dd if=msg of=floppya.img bs=512 count=1 seek=30 conv=notrunc
 #loading files into disk
 ./loadFile Shell
-./loadFile test9
-#./loadFile fib
+#./loadFile test9
+./loadFile fib
 #./loadFile test1
 ./loadFile msg
 #./loadFile test2

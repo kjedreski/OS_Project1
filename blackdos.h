@@ -5,3 +5,4 @@
 #define CLS()     interrupt(33,12,4,5,0)
 #define END()     interrupt(33,5,0,0,0)
 #define BOOT()    interrupt(33,12,0,0,0)
+#define PRINTC(x) interrupt(33,66,x,0,0);
