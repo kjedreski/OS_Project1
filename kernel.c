@@ -48,7 +48,11 @@ void main()
   // interrupt(33,7,"fib\0",2,0);
    //interrupt(33,7,"msg\0",2,0);
    //interrupt(33,7,"test2\0",2,0);
-    //interrupt(33,8,"yo\0",2,1);
+  //interrupt(33,3,"msg\0",buffer,&size);
+   // add new filename to system and copy over buffer contents to file2
+   //interrupt(33,8,"new\0",&buffer,size);
+
+
    //interrupt(33,4,"fib\0",2,0);
    //interrupt(33,0,"Error if this executes. \r\n\0",0,0);
    while(1);
@@ -269,6 +273,7 @@ while ( i < lastFileChar+26){
 /* read all sector numbers from trackSector into buffer*/
 i=0;
 while (trackSector[i]!='\0'){
+  (*size)++;
   readSector(buffer+copycat,trackSector[i]);
   copycat = copycat + 512;
   i= i+1;
@@ -373,7 +378,7 @@ void deleteFile(char* name) {
     lastFileChar++;
     for (i=0; i < 26 ; i ++){
       if (disk_Dir[lastFileChar+i] == 0) break;
-      map[disk_Dir[lastFileChar+i]]=0XBB;
+      map[disk_Dir[lastFileChar+i]]=0;
     }
   /*  for (i = lastFileChar-25; i < lastFileChar; i++){
      map[i+1]=0;
@@ -415,6 +420,7 @@ void writeFile(char* name,char* buffer, int numberOfSectors) {
         /*track sector number using index */
     i=0;
     for ( d =0; d < 512; d ++) {
+    //  e = d / 32;
       if (name[i]== dir[d]){
         i++;
         isMatch++;
@@ -465,7 +471,7 @@ void writeFile(char* name,char* buffer, int numberOfSectors) {
   //for each sector making up the file
   for (i =0; i < numberOfSectors; i ++){
     //find a free sector by searching map for a zero
-    for (d=0; d < 32; d ++){
+    for (d=0; d < 512; d ++){
       if (map[d]==0){
         map[d] = 255;
         // add sector number to file's directory entry
@@ -474,13 +480,14 @@ void writeFile(char* name,char* buffer, int numberOfSectors) {
       }
     }
     //Write 512 bytes from buffer holding file to sector.
-    addBuffer = addBuffer + 512;
-    writeSector(buffer[addBuffer],d);
+    writeSector(buffer+addBuffer,d);
+     addBuffer = addBuffer + 512;
+  //  printChar()
     helper++;
   }
 
   //TODO: Test me. PADDING rest of sector
-  for (i = (FreeEntry+6); i < FreeEntry+32; i ++ ){
+  for (i = (FreeEntry+d); i < FreeEntry+32; i ++ ){
     //pad the zeros.
     dir[i] = 0;
   }
