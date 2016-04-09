@@ -8,6 +8,7 @@ void runFile(char cmdLine[]);
 void tweet(char cmdLine[]);
 void type(char cmdLine[]);
 void dir(char cmdLine[]);
+void help();
 
 
 void main(){
@@ -41,6 +42,8 @@ while(1){
     type(x);
   else if (stringCompare(x,"dir")==1)
     dir(x);
+  else if (stringCompare(x,"help")==1)
+    help();
 
   //else if (stringCompare(x,"run"))
   }
@@ -68,8 +71,6 @@ void dir (char cmdLine[]){
    if (i %32 == 0 && directory[i] != 0 && (ascii>=90 && ascii<=122) ){
      //PRINT first 6 letters of name
      //PRINT sector number and then newline
-     // TODO: Hide capital letters
-     // TODO: print total space used by files and total free space remaining
      for (d=0; d < 6; d++)
        PRINTC(directory[i+d]);
 
@@ -83,10 +84,25 @@ void dir (char cmdLine[]){
      PRINTS("\r\n\0");
     }
   }
-
+  //TODO:print space remaining
   PRINTS("Space used by files: \0");
   PRINTN(sectorCount*32);
+  PRINTS("bytes\r\n\0");
 
+}
+
+void help(){
+  PRINTS("User Manual - BlackDOS \r\n\0");
+  PRINTS("boot - reboot the system  \r\n\0");
+  PRINTS("cls - clear the screen \r\n\0");
+  PRINTS("copy file1 file2 - copy contents from file1 and create new file file2 with file1's contents  \r\n\0");
+  PRINTS("del filename - delete filename\r\n\0");
+  PRINTS("dir - List all files from directory\r\n\0");
+  PRINTS("echo comment - Display coomment on next line \r\n\0");
+  PRINTS("help - display user manual \r\n\0");
+  PRINTS("run filename - execute program \r\n\0");
+  PRINTS("tweet filename - put 140 characters in a new text file");
+  PRINTS("type filename - output contents of filename");
 }
 
 void type (char cmdLine[]){
